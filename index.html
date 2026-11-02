@@ -1,0 +1,610 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NextGen Intelligence</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f3f1ff;color:#29264b;min-height:100vh}
+button{cursor:pointer;border:0;border-radius:9px;padding:11px 17px;font-weight:bold}
+input,select{width:100%;padding:12px;border:1px solid #d9d4ef;border-radius:9px;background:white;font-size:14px;outline:none}
+input:focus,select:focus{border-color:#7967d8}
+label{font-size:13px;font-weight:bold;display:block;margin:13px 0 7px}
+.primary{background:#6955c9;color:white}
+.secondary{background:#eeeaff;color:#5545a7}
+.danger{background:#ffe8e8;color:#bd3434}
+.success{background:#e3f8ec;color:#21804b}
+.hidden{display:none!important}
+.small{font-size:12px;color:#777}
+.muted{color:#777}
+#authPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:25px}
+.auth-wrap{width:100%;max-width:1050px;display:grid;grid-template-columns:1fr 1fr;background:white;border-radius:22px;overflow:hidden;box-shadow:0 15px 45px #51458b22}
+.welcome{padding:55px 45px;background:linear-gradient(145deg,#6e5acb,#9c8de7);color:white;display:flex;flex-direction:column;justify-content:center}
+.welcome h1{font-size:34px;margin:18px 0 12px}
+.welcome p{line-height:1.7;color:#f1edff}
+.logo{font-size:43px}
+.auth-box{padding:40px}
+.auth-box h2{margin-bottom:8px}
+.tabs{display:flex;gap:8px;margin:22px 0}
+.tabs button{flex:1;background:#f0edff;color:#5b4da5}
+.tabs button.active{background:#6955c9;color:white}
+.form-message{font-size:12px;margin-top:5px;color:#6a58bf;min-height:15px}
+.auth-box .primary{width:100%;margin-top:20px}
+.link{display:block;text-align:center;margin-top:16px;color:#6553bd;font-size:13px;cursor:pointer}
+#app{display:none;min-height:100vh}
+.topbar{background:white;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px #33245c12;position:sticky;top:0;z-index:5}
+.brand{font-size:20px;font-weight:bold;color:#5f4db8}
+.brand span{color:#a18ce8}
+.top-actions{display:flex;align-items:center;gap:12px}
+.layout{display:flex;min-height:calc(100vh - 65px)}
+.sidebar{width:230px;background:white;padding:22px 14px;box-shadow:2px 0 10px #33245c0c;flex-shrink:0}
+.sidebar button{width:100%;text-align:left;background:transparent;color:#514b70;margin:4px 0;padding:13px}
+.sidebar button.active,.sidebar button:hover{background:#eeeaff;color:#5e4cb8}
+.main{padding:28px;width:100%;max-width:1500px;margin:auto}
+.page-title{font-size:25px;margin-bottom:7px}
+.subtitle{color:#777;font-size:14px;margin-bottom:23px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:25px}
+.stat{background:white;border-radius:15px;padding:20px;box-shadow:0 5px 18px #3b2a7010}
+.stat .number{font-size:29px;font-weight:bold;color:#6653c0;margin-top:10px}
+.stat .caption{font-size:13px;color:#777}
+.panel{background:white;border-radius:15px;padding:22px;margin-bottom:20px;box-shadow:0 5px 18px #3b2a700c}
+.panel h3{margin-bottom:15px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.full{grid-column:1/-1}
+.checks{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
+.checks label{display:flex;align-items:center;gap:7px;font-weight:normal;margin:5px 0}
+.checks input{width:auto}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:720px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #eee}
+th{background:#f7f5ff;color:#5b4da5}
+.status{padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold;display:inline-block}
+.pending{background:#fff3d7;color:#946500}
+.approved{background:#e0f7e9;color:#237b49}
+.rejected{background:#ffe5e5;color:#b53030}
+.flagged{background:#ffe5e5;color:#b53030}
+.actions{display:flex;gap:6px}
+.actions button{padding:7px 10px;font-size:11px}
+.search-row{display:flex;gap:10px;margin-bottom:15px}
+.search-row input{max-width:300px}
+.seat-track{height:13px;background:#eee;border-radius:20px;overflow:hidden;margin:12px 0}
+.seat-fill{height:100%;border-radius:20px;background:#45b77a}
+.seat-fill.warning{background:#e7a72e}
+.seat-fill.full{background:#dc5555}
+.notice{padding:12px;border-radius:9px;background:#f2efff;color:#5747a6;font-size:13px;margin:12px 0}
+.notice.warning{background:#fff4df;color:#956600}
+.admin-tag{background:#fff0d6;color:#986400;padding:6px 10px;border-radius:20px;font-size:12px}
+.empty{text-align:center;color:#888;padding:30px}
+@media(max-width:800px){
+.auth-wrap{grid-template-columns:1fr}.welcome{padding:30px}.welcome h1{font-size:27px}
+.cards{grid-template-columns:1fr 1fr}.layout{display:block}
+.sidebar{width:100%;display:flex;overflow-x:auto;padding:8px}
+.sidebar button{white-space:nowrap;width:auto}
+.main{padding:16px}.form-grid{grid-template-columns:1fr}
+.full{grid-column:auto}.topbar{padding:13px}.brand{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<section id="authPage">
+<div class="auth-wrap">
+<div class="welcome">
+<div class="logo">🎓</div>
+<h1>NextGen Intelligence</h1>
+<p>Smart Student Admission Verification and Seat Monitoring System.</p>
+<br>
+<p>One platform to manage student records, identify duplicate applications and monitor college seats.</p>
+</div>
+
+<div class="auth-box">
+<h2 id="authTitle">Welcome Back!</h2>
+<p class="small" id="authSubtitle">Login to continue to your portal.</p>
+
+<div class="tabs">
+<button id="officerTab" class="active" onclick="showLogin('officer')">Officer Login</button>
+<button id="adminTab" onclick="showLogin('admin')">Admin Portal</button>
+</div>
+
+<div id="loginForm">
+<label>Username</label>
+<input id="loginUsername" placeholder="Enter username">
+<label>Password</label>
+<input id="loginPassword" type="password" placeholder="Enter password">
+<button class="primary" onclick="login()">Login</button>
+<span class="link" onclick="showForgot()">Forgot Password?</span>
+<span class="link" id="registerLink" onclick="showRegister()">New officer? Create an account</span>
+<p id="loginMessage" class="form-message"></p>
+</div>
+
+<div id="registerForm" class="hidden">
+<label>Officer Name</label>
+<input id="regName" placeholder="Enter your name">
+<label>Create Username</label>
+<input id="regUsername" placeholder="Choose a username">
+<label>Create Password</label>
+<input id="regPassword" type="password" placeholder="Create password">
+<label>Confirm Password</label>
+<input id="regConfirm" type="password" placeholder="Confirm password">
+<button class="primary" onclick="registerOfficer()">Create Account</button>
+<span class="link" onclick="showLogin('officer')">Back to Login</span>
+<p id="registerMessage" class="form-message"></p>
+</div>
+
+<div id="forgotForm" class="hidden">
+<div class="notice">Enter your username and demo recovery code to reset your password.</div>
+<label>Username</label>
+<input id="forgotUsername" placeholder="Enter username">
+<label>Recovery Code</label>
+<input id="recoveryCode" placeholder="Enter recovery code">
+<label>New Password</label>
+<input id="newPassword" type="password" placeholder="Enter new password">
+<button class="primary" onclick="resetPassword()">Reset Password</button>
+<span class="link" onclick="showLogin('officer')">Back to Login</span>
+<p id="forgotMessage" class="form-message"></p>
+</div>
+</div>
+</div>
+</section>
+
+<div id="app">
+<header class="topbar">
+<div class="brand">🎓 NextGen <span>Intelligence</span></div>
+<div class="top-actions">
+<span id="userDisplay" class="small"></span>
+<span id="adminBadge" class="admin-tag hidden">ADMIN</span>
+<button class="danger" onclick="logout()">Logout</button>
+</div>
+</header>
+
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+<button class="active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+<button id="registerNav" onclick="showPage('registerStudent',this)">➕ Student Registration</button>
+<button onclick="showPage('students',this)">👨‍🎓 All Students</button>
+<button onclick="showPage('flagged',this)">⚠️ Flagged Records</button>
+<button onclick="showPage('seats',this)">🪑 Seat Monitoring</button>
+<button id="adminUsersButton" class="hidden" onclick="showPage('officers',this)">👥 Officer Accounts</button>
+<button id="adminRequestsButton" class="hidden" onclick="showPage('requests',this)">📄 AICTE Requests</button>
+</aside>
+
+<main class="main">
+
+<section id="dashboard" class="page">
+<h2 class="page-title">Dashboard</h2>
+<p class="subtitle">Admission verification overview</p>
+<div class="cards">
+<div class="stat"><div class="caption">Total Students</div><div class="number" id="totalCount">0</div></div>
+<div class="stat"><div class="caption">Flagged Records</div><div class="number" id="flagCount">0</div></div>
+<div class="stat"><div class="caption">Format Verified</div><div class="number" id="verifiedCount">0</div></div>
+<div class="stat"><div class="caption">Approved Students</div><div class="number" id="approvedCount">0</div></div>
+</div>
+<div class="panel">
+<h3>Welcome to NextGen Intelligence</h3>
+<p class="muted">Manage student applications, check duplicate records, review registrations and monitor available seats.</p>
+<div class="notice">Valid records without detected duplicates remain Pending until an officer approves or rejects them.</div>
+</div>
+<div class="panel">
+<h3>Recent Student Registrations</h3>
+<div id="recentStudents"></div>
+</div>
+</section>
+
+<section id="registerStudent" class="page hidden">
+<h2 class="page-title">Student Registration</h2>
+<p class="subtitle">Enter student details for admission verification.</p>
+<div class="panel">
+<form id="studentForm" onsubmit="addStudent(event)">
+<div class="form-grid">
+<div><label>Student Name *</label><input id="studentName" required placeholder="Enter student name"></div>
+<div>
+<label>APAAR ID *</label>
+<input id="apaar" required inputmode="numeric" maxlength="12" placeholder="Enter 12-digit APAAR ID" oninput="validateApaar()">
+<div id="apaarMessage" class="form-message">Enter your 12-digit APAAR ID.</div>
+</div>
+<div>
+<label>Phone Number *</label>
+<input id="phone" required inputmode="numeric" maxlength="10" placeholder="Enter 10-digit phone number" oninput="validatePhone()">
+<div id="phoneMessage" class="form-message">Enter your 10-digit phone number.</div>
+</div>
+<div>
+<label>College *</label>
+<select id="college" required onchange="updateProgrammes();updateSeatPreview()">
+<option value="">Select College</option>
+<option>Vignan's Nirula Institute of Technology</option>
+<option>Vignan's Lara Institute of Technology</option>
+<option>RVR & JC College of Engineering</option>
+<option>K L University</option>
+<option>Acharya Nagarjuna University</option>
+</select>
+</div>
+<div>
+<label>Programme *</label>
+<select id="programme" required onchange="updateSeatPreview()"><option value="">Select Programme</option></select>
+</div>
+<div>
+<label>Seat Type *</label>
+<select id="seatType" required onchange="updateSeatPreview()">
+<option value="Regular">Regular</option>
+<option value="Supernumerary">Supernumerary</option>
+</select>
+</div>
+<div class="full">
+<label>Student Category</label>
+<div class="checks">
+<label><input type="checkbox" id="nri"> NRI</label>
+<label><input type="checkbox" id="oci"> OCI</label>
+<label><input type="checkbox" id="foreign"> Foreign National</label>
+</div>
+</div>
+</div>
+<div id="seatPreview" class="notice">Select a college and programme to view seat availability.</div>
+<div id="extraSeatBox" class="hidden">
+<div class="notice warning">Regular seat capacity is full. An additional-seat request requires a reason.</div>
+<label>Reason for Additional Seat Request *</label>
+<input id="extraReason" placeholder="Enter reason">
+</div>
+<button class="primary" type="submit" style="margin-top:20px">Submit Registration</button>
+<p id="studentMessage" class="form-message"></p>
+</form>
+</div>
+</section>
+
+<section id="students" class="page hidden">
+<h2 class="page-title">All Students</h2>
+<p class="subtitle">View and manage registered student records.</p>
+<div class="panel">
+<div class="search-row">
+<input id="studentSearch" placeholder="Search by name, APAAR or college" oninput="renderStudents()">
+<select id="statusFilter" onchange="renderStudents()" style="max-width:180px">
+<option value="All">All Status</option>
+<option>Pending</option>
+<option>Approved</option>
+<option>Rejected</option>
+<option>Flagged</option>
+</select>
+</div>
+<div id="studentTable" class="table-wrap"></div>
+</div>
+</section>
+
+<section id="flagged" class="page hidden">
+<h2 class="page-title">Flagged Records</h2>
+<p class="subtitle">Applications with duplicate identifiers.</p>
+<div class="panel"><div id="flaggedTable" class="table-wrap"></div></div>
+</section>
+
+<section id="seats" class="page hidden">
+<h2 class="page-title">Seat Monitoring</h2>
+<p class="subtitle">Track approved regular admissions against sample seat capacity.</p>
+<div id="seatList"></div>
+</section>
+
+<section id="officers" class="page hidden">
+<h2 class="page-title">Officer Accounts</h2>
+<p class="subtitle">Admin view of officer accounts.</p>
+<div class="panel"><div id="officerTable" class="table-wrap"></div></div>
+</section>
+
+<section id="requests" class="page hidden">
+<h2 class="page-title">Additional Seat Requests</h2>
+<p class="subtitle">Demo requests saved for admin review.</p>
+<div class="panel"><div id="requestTable" class="table-wrap"></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<script>
+const ADMIN_USERNAME="admin";
+const ADMIN_PASSWORD="admin123";
+const RECOVERY_CODE="NGI-ADMIN-2026";
+const CAPACITY=120;
+
+function getData(key){
+try{return JSON.parse(localStorage.getItem(key))||[]}
+catch(e){return []}
+}
+function saveData(key,data){
+localStorage.setItem(key,JSON.stringify(data));
+}
+
+/* PRELOADED SAMPLE DATA: only loads on first visit */
+if(localStorage.getItem("ngi_demo_students")===null){
+saveData("ngi_demo_students",[
+{id:1001,name:"Aarav Kumar",apaar:"123456789012",phone:"9876543210",college:"Vignan's Nirula Institute of Technology",programme:"CSE",seatType:"Regular",category:"General",status:"Approved",reason:"Approved by officer."},
+{id:1002,name:"Priya Sharma",apaar:"234567890123",phone:"9876543211",college:"Vignan's Nirula Institute of Technology",programme:"CSE",seatType:"Regular",category:"General",status:"Pending",reason:"Awaiting officer review."},
+{id:1003,name:"Rahul Reddy",apaar:"345678901234",phone:"9876543212",college:"Vignan's Lara Institute of Technology",programme:"ECE",seatType:"Regular",category:"General",status:"Approved",reason:"Approved by officer."},
+{id:1004,name:"Sneha Patel",apaar:"456789012345",phone:"9876543213",college:"RVR & JC College of Engineering",programme:"IT",seatType:"Supernumerary",category:"NRI",status:"Approved",reason:"Approved by officer."},
+{id:1005,name:"Kiran Kumar",apaar:"123456789012",phone:"9876543214",college:"Vignan's Nirula Institute of Technology",programme:"CSE",seatType:"Regular",category:"General",status:"Flagged",reason:"Duplicate APAAR ID detected."},
+{id:1006,name:"Meera Rani",apaar:"567890123456",phone:"9876543215",college:"K L University",programme:"AI&DS",seatType:"Regular",category:"OCI",status:"Rejected",reason:"Rejected during officer review."},
+{id:1007,name:"Arjun Varma",apaar:"678901234567",phone:"9876543216",college:"Acharya Nagarjuna University",programme:"EEE",seatType:"Regular",category:"General",status:"Pending",reason:"Awaiting officer review."},
+{id:1008,name:"Ananya Rao",apaar:"789012345678",phone:"9876543217",college:"Vignan's Lara Institute of Technology",programme:"ECE",seatType:"Regular",category:"Foreign National",status:"Approved",reason:"Approved by officer."}
+]);
+}
+if(localStorage.getItem("ngi_demo_accounts")===null){
+saveData("ngi_demo_accounts",[
+{name:"Demo Officer",username:"officer",password:"officer123"},
+{name:"Admission Officer",username:"admission",password:"admission123"}
+]);
+}
+if(localStorage.getItem("ngi_aicte_requests")===null){
+saveData("ngi_aicte_requests",[
+{id:2001,name:"Demo Student",college:"Vignan's Nirula Institute of Technology",programme:"CSE",reason:"Sample additional seat request for demonstration.",status:"Pending"}
+]);
+}
+
+let students=getData("ngi_demo_students");
+let accounts=getData("ngi_demo_accounts");
+let requests=getData("ngi_aicte_requests");
+let currentRole="";
+let currentUser="";
+
+const colleges=[
+"Vignan's Nirula Institute of Technology",
+"Vignan's Lara Institute of Technology",
+"RVR & JC College of Engineering",
+"K L University",
+"Acharya Nagarjuna University"
+];
+const programmes=["CSE","ECE","EEE","IT","AI&DS","Mechanical","Civil"];
+
+function showLogin(type){
+document.getElementById("loginForm").classList.remove("hidden");
+document.getElementById("registerForm").classList.add("hidden");
+document.getElementById("forgotForm").classList.add("hidden");
+document.getElementById("officerTab").classList.toggle("active",type==="officer");
+document.getElementById("adminTab").classList.toggle("active",type==="admin");
+document.getElementById("authTitle").textContent=type==="admin"?"Admin Portal":"Welcome Back!";
+document.getElementById("authSubtitle").textContent=type==="admin"?"Administrator login":"Officer login to continue.";
+document.getElementById("registerLink").classList.toggle("hidden",type==="admin");
+document.getElementById("loginMessage").textContent="";
+document.getElementById("loginUsername").value="";
+document.getElementById("loginPassword").value="";
+currentRole=type;
+}
+function showRegister(){
+document.getElementById("loginForm").classList.add("hidden");
+document.getElementById("registerForm").classList.remove("hidden");
+document.getElementById("forgotForm").classList.add("hidden");
+document.getElementById("authTitle").textContent="Officer Registration";
+}
+function showForgot(){
+document.getElementById("loginForm").classList.add("hidden");
+document.getElementById("registerForm").classList.add("hidden");
+document.getElementById("forgotForm").classList.remove("hidden");
+document.getElementById("authTitle").textContent="Reset Password";
+}
+function registerOfficer(){
+const name=document.getElementById("regName").value.trim();
+const username=document.getElementById("regUsername").value.trim();
+const password=document.getElementById("regPassword").value;
+const confirm=document.getElementById("regConfirm").value;
+const msg=document.getElementById("registerMessage");
+if(!name||!username||!password){msg.textContent="Please fill all fields.";return}
+if(password.length<6){msg.textContent="Password must contain at least 6 characters.";return}
+if(password!==confirm){msg.textContent="Passwords do not match.";return}
+if(accounts.some(a=>a.username.toLowerCase()===username.toLowerCase())){msg.textContent="Username already exists.";return}
+accounts.push({name,username,password});
+saveData("ngi_demo_accounts",accounts);
+msg.textContent="Account created. You can now login.";
+}
+function login(){
+const username=document.getElementById("loginUsername").value.trim();
+const password=document.getElementById("loginPassword").value;
+const msg=document.getElementById("loginMessage");
+if(currentRole==="admin"){
+if(username===ADMIN_USERNAME&&password===ADMIN_PASSWORD)openApp("admin","Administrator");
+else msg.textContent="Invalid admin username or password.";
+return;
+}
+const account=accounts.find(a=>a.username===username&&a.password===password);
+if(account)openApp("officer",account.name);
+else msg.textContent="Invalid username or password.";
+}
+function resetPassword(){
+const username=document.getElementById("forgotUsername").value.trim();
+const code=document.getElementById("recoveryCode").value.trim();
+const password=document.getElementById("newPassword").value;
+const msg=document.getElementById("forgotMessage");
+if(code!==RECOVERY_CODE){msg.textContent="Invalid recovery code.";return}
+if(password.length<6){msg.textContent="New password must contain at least 6 characters.";return}
+const account=accounts.find(a=>a.username===username);
+if(!account){msg.textContent="Officer username not found.";return}
+account.password=password;
+saveData("ngi_demo_accounts",accounts);
+msg.textContent="Password reset successfully. Please login.";
+}
+function openApp(role,name){
+currentRole=role;currentUser=name;
+document.getElementById("authPage").style.display="none";
+document.getElementById("app").style.display="block";
+document.getElementById("userDisplay").textContent=name;
+document.getElementById("adminBadge").classList.toggle("hidden",role!=="admin");
+document.getElementById("adminUsersButton").classList.toggle("hidden",role!=="admin");
+document.getElementById("adminRequestsButton").classList.toggle("hidden",role!=="admin");
+document.getElementById("registerNav").classList.toggle("hidden",role==="admin");
+document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active"));
+document.querySelector(".sidebar button").classList.add("active");
+showPage("dashboard");
+refreshAll();
+}
+function logout(){
+currentRole="";currentUser="";
+document.getElementById("app").style.display="none";
+document.getElementById("authPage").style.display="flex";
+showLogin("officer");
+}
+function showPage(id,button){
+document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+if(button){
+document.querySelectorAll(".sidebar button").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+}
+refreshAll();
+}
+function updateProgrammes(){
+const select=document.getElementById("programme");
+select.innerHTML='<option value="">Select Programme</option>';
+programmes.forEach(p=>select.innerHTML+=`<option>${p}</option>`);
+}
+function validateApaar(){
+const el=document.getElementById("apaar");
+el.value=el.value.replace(/\D/g,"").slice(0,12);
+const n=el.value.length;
+document.getElementById("apaarMessage").textContent=n===12?"✓ All 12 digits entered.":`Enter ${12-n} more digit(s).`;
+}
+function validatePhone(){
+const el=document.getElementById("phone");
+el.value=el.value.replace(/\D/g,"").slice(0,10);
+const n=el.value.length;
+document.getElementById("phoneMessage").textContent=n===10?"✓ Phone number format is valid.":`Enter ${10-n} more digit(s).`;
+}
+function getSeatCount(college,programme){
+return students.filter(s=>s.college===college&&s.programme===programme&&s.seatType==="Regular"&&s.status==="Approved").length;
+}
+function updateSeatPreview(){
+const college=document.getElementById("college").value;
+const programme=document.getElementById("programme").value;
+const type=document.getElementById("seatType").value;
+const box=document.getElementById("seatPreview");
+const extra=document.getElementById("extraSeatBox");
+extra.classList.add("hidden");
+if(!college||!programme){box.textContent="Select a college and programme to view seat availability.";return}
+if(type==="Supernumerary"){
+box.textContent="Supernumerary seat selected. It is tracked separately from regular seat capacity.";
+return;
+}
+const count=getSeatCount(college,programme);
+const remaining=Math.max(0,CAPACITY-count);
+box.textContent=`Approved regular seats: ${count}/${CAPACITY}. Available seats: ${remaining}.`;
+if(count>=CAPACITY)extra.classList.remove("hidden");
+}
+function getCategory(){
+const a=[];
+if(document.getElementById("nri").checked)a.push("NRI");
+if(document.getElementById("oci").checked)a.push("OCI");
+if(document.getElementById("foreign").checked)a.push("Foreign National");
+return a.length?a.join(", "):"General";
+}
+function addStudent(event){
+event.preventDefault();
+const name=document.getElementById("studentName").value.trim();
+const apaar=document.getElementById("apaar").value;
+const phone=document.getElementById("phone").value;
+const college=document.getElementById("college").value;
+const programme=document.getElementById("programme").value;
+const seatType=document.getElementById("seatType").value;
+const msg=document.getElementById("studentMessage");
+
+if(apaar.length!==12){msg.textContent="APAAR ID must contain exactly 12 digits.";return}
+if(phone.length!==10){msg.textContent="Phone number must contain exactly 10 digits.";return}
+
+const duplicate=students.some(s=>s.apaar===apaar||s.phone===phone);
+if(duplicate){
+students.push({id:Date.now(),name,apaar,phone,college,programme,seatType,category:getCategory(),status:"Flagged",reason:"Duplicate APAAR ID or phone number detected."});
+saveData("ngi_demo_students",students);
+msg.textContent="Duplicate record detected. Application flagged for review.";
+document.getElementById("studentForm").reset();
+updateSeatPreview();refreshAll();return;
+}
+
+if(seatType==="Regular"&&getSeatCount(college,programme)>=CAPACITY){
+const reason=document.getElementById("extraReason").value.trim();
+if(!reason){msg.textContent="Please enter a reason for the additional-seat request.";return}
+requests.push({id:Date.now(),name,college,programme,reason,status:"Pending"});
+saveData("ngi_aicte_requests",requests);
+msg.textContent="Demo request saved. It has not been sent to AICTE.";
+refreshAll();return;
+}
+
+students.push({id:Date.now(),name,apaar,phone,college,programme,seatType,category:getCategory(),status:"Pending",reason:"Format checked. Awaiting officer review."});
+saveData("ngi_demo_students",students);
+msg.textContent="Registration submitted successfully. Status: Pending.";
+document.getElementById("studentForm").reset();
+document.getElementById("apaarMessage").textContent="Enter your 12-digit APAAR ID.";
+document.getElementById("phoneMessage").textContent="Enter your 10-digit phone number.";
+updateSeatPreview();refreshAll();
+}
+function escapeHTML(value){
+return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function studentRows(list){
+if(!list.length)return '<div class="empty">No student records found.</div>';
+return `<table><thead><tr><th>Name</th><th>APAAR ID</th><th>Phone</th><th>College</th><th>Programme</th><th>Seat Type</th><th>Status</th><th>Action</th></tr></thead><tbody>
+${list.map(s=>`<tr>
+<td>${escapeHTML(s.name)}</td><td>${escapeHTML(s.apaar)}</td><td>${escapeHTML(s.phone)}</td>
+<td>${escapeHTML(s.college)}</td><td>${escapeHTML(s.programme)}</td><td>${escapeHTML(s.seatType)}</td>
+<td><span class="status ${s.status.toLowerCase()}">${escapeHTML(s.status)}</span></td>
+<td>${s.status==="Pending"&&currentRole==="officer"?`<div class="actions"><button class="success" onclick="changeStatus(${s.id},'Approved')">Approve</button><button class="danger" onclick="changeStatus(${s.id},'Rejected')">Reject</button></div>`:"—"}</td>
+</tr>`).join("")}</tbody></table>`;
+}
+function renderStudents(){
+const search=(document.getElementById("studentSearch")?.value||"").toLowerCase();
+const filter=document.getElementById("statusFilter")?.value||"All";
+const list=students.filter(s=>{
+const matches=[s.name,s.apaar,s.college,s.phone].join(" ").toLowerCase().includes(search);
+return matches&&(filter==="All"||s.status===filter);
+});
+document.getElementById("studentTable").innerHTML=studentRows(list);
+}
+function changeStatus(id,status){
+const s=students.find(x=>x.id===id);
+if(!s)return;
+if(status==="Approved"&&s.seatType==="Regular"&&getSeatCount(s.college,s.programme)>=CAPACITY){
+alert("Regular seat capacity is full.");
+return;
+}
+s.status=status;
+s.reason=status==="Approved"?"Approved by officer.":"Rejected by officer.";
+saveData("ngi_demo_students",students);
+refreshAll();
+}
+function renderFlagged(){
+document.getElementById("flaggedTable").innerHTML=studentRows(students.filter(s=>s.status==="Flagged"));
+}
+function renderSeats(){
+let html="";
+colleges.forEach(college=>{
+programmes.forEach(programme=>{
+const count=getSeatCount(college,programme);
+if(count===0)return;
+const percent=Math.min(100,count/CAPACITY*100);
+const cls=percent>=100?"full":percent>=90?"warning":"";
+html+=`<div class="panel"><h3>${escapeHTML(college)} – ${programme}</h3>
+<p>${count} / ${CAPACITY} approved regular seats</p>
+<div class="seat-track"><div class="seat-fill ${cls}" style="width:${percent}%"></div></div>
+<p class="small">${Math.max(0,CAPACITY-count)} regular seats remaining</p></div>`;
+});
+});
+document.getElementById("seatList").innerHTML=html||'<div class="panel empty">No approved regular admissions yet.</div>';
+}
+function renderOfficers(){
+document.getElementById("officerTable").innerHTML=accounts.length?
+`<table><thead><tr><th>Officer Name</th><th>Username</th><th>Account</th></tr></thead><tbody>${accounts.map(a=>`<tr><td>${escapeHTML(a.name)}</td><td>${escapeHTML(a.username)}</td><td>Registered</td></tr>`).join("")}</tbody></table>`:
+'<div class="empty">No officer accounts registered.</div>';
+}
+function renderRequests(){
+document.getElementById("requestTable").innerHTML=requests.length?
+`<table><thead><tr><th>Student</th><th>College</th><th>Programme</th><th>Reason</th><th>Status</th></tr></thead><tbody>${requests.map(r=>`<tr><td>${escapeHTML(r.name)}</td><td>${escapeHTML(r.college)}</td><td>${escapeHTML(r.programme)}</td><td>${escapeHTML(r.reason)}</td><td>${escapeHTML(r.status)}</td></tr>`).join("")}</tbody></table>`:
+'<div class="empty">No additional-seat requests.</div>';
+}
+function refreshAll(){
+students=getData("ngi_demo_students");
+accounts=getData("ngi_demo_accounts");
+requests=getData("ngi_aicte_requests");
+document.getElementById("totalCount").textContent=students.length;
+document.getElementById("flagCount").textContent=students.filter(s=>s.status==="Flagged").length;
+document.getElementById("verifiedCount").textContent=students.filter(s=>s.status!=="Flagged").length;
+document.getElementById("approvedCount").textContent=students.filter(s=>s.status==="Approved").length;
+const recent=students.slice(-5).reverse();
+document.getElementById("recentStudents").innerHTML=recent.length?studentRows(recent):'<div class="empty">No registrations yet.</div>';
+renderStudents();renderFlagged();renderSeats();renderOfficers();renderRequests();
+}
+</script>
+</body>
+</html>
